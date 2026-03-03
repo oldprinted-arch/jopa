@@ -1,0 +1,8 @@
+{
+  "name": "HelloButton",
+  "description": "Adds a test button near send",
+  "authors": [
+    { "name": "oldprinted-arch", "id": "0" }
+  ],
+  "main": "index.js"
+}
