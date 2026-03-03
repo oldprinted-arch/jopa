@@ -1,47 +1,45 @@
-// ==UserPlugin==
-// @name HelloButton
-// @description Добавляет кнопку рядом с отправкой сообщений
-// @author You
-// ==/UserPlugin==
+export default {
+  onLoad() {
+    const metro = globalThis.bunny?.metro ?? globalThis.vendetta?.metro;
+    const patcher = globalThis.bunny?.patcher ?? globalThis.vendetta?.patcher;
+    const React = metro?.common?.React;
+    const ui = globalThis.bunny?.ui ?? globalThis.vendetta?.ui;
 
-(function() {
-  try {
-    const metro = globalThis.vendetta?.metro || globalThis.bunny?.metro;
-    const patcher = globalThis.vendetta?.patcher || globalThis.bunny?.patcher;
-    const React = metro.common.React;
-    const ui = globalThis.vendetta?.ui || globalThis.bunny?.ui;
+    if (!metro || !patcher || !React || !ui) {
+      console.log("HelloButton: Bunny/Vendetta API not found");
+      return;
+    }
 
     const MessageActions = metro.findByProps("sendMessage");
     const ChatInput = metro.findByProps("ChatInput");
 
-    let unpatch = patcher.after("default", ChatInput, (_, res) => {
+    this.unpatch = patcher.after("default", ChatInput, (_, res) => {
       try {
         const children = res?.props?.children;
         if (!Array.isArray(children)) return res;
 
-        const button = React.createElement(
+        const btn = React.createElement(
           "TouchableOpacity",
           {
             onPress: () => {
               const channelId = ui.getChannelId();
-              MessageActions.sendMessage(channelId, {
-                content: "привет как дела"
-              });
+              MessageActions.sendMessage(channelId, { content: "привет как дела" });
             },
             style: { marginRight: 8, padding: 8 }
           },
           React.createElement("Text", null, "Hi")
         );
 
-        children.unshift(button);
-      } catch (e) { console.log(e); }
-
+        // слева от отправки
+        children.unshift(btn);
+      } catch (e) {
+        console.log("HelloButton error:", e);
+      }
       return res;
     });
+  },
 
-    // Экспорт на выгрузку
-    globalThis.helloButtonUnload = () => {
-      unpatch?.();
-    };
-  } catch(e) { console.log("Plugin error:", e); }
-})();
+  onUnload() {
+    this.unpatch?.();
+  }
+};
