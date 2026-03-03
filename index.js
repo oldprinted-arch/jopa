@@ -1,21 +1,20 @@
 // ==UserPlugin==
 // @name HelloButton
-// @description Test send button
+// @description Добавляет кнопку рядом с отправкой сообщений
 // @author You
 // ==/UserPlugin==
 
 (function() {
-  const metro = globalThis.vendetta?.metro || globalThis.bunny?.metro;
-  const patcher = globalThis.vendetta?.patcher || globalThis.bunny?.patcher;
-  const React = metro.common.React;
-  const ui = globalThis.vendetta?.ui || globalThis.bunny?.ui;
-  const MessageActions = metro.findByProps("sendMessage");
-  const ChatInput = metro.findByProps("ChatInput");
+  try {
+    const metro = globalThis.vendetta?.metro || globalThis.bunny?.metro;
+    const patcher = globalThis.vendetta?.patcher || globalThis.bunny?.patcher;
+    const React = metro.common.React;
+    const ui = globalThis.vendetta?.ui || globalThis.bunny?.ui;
 
-  let unpatch;
+    const MessageActions = metro.findByProps("sendMessage");
+    const ChatInput = metro.findByProps("ChatInput");
 
-  function load() {
-    unpatch = patcher.after("default", ChatInput, (_, res) => {
+    let unpatch = patcher.after("default", ChatInput, (_, res) => {
       try {
         const children = res?.props?.children;
         if (!Array.isArray(children)) return res;
@@ -36,14 +35,13 @@
 
         children.unshift(button);
       } catch (e) { console.log(e); }
+
       return res;
     });
-  }
 
-  function unload() {
-    unpatch?.();
-  }
-
-  load();
-  globalThis.helloButtonUnload = unload;
+    // Экспорт на выгрузку
+    globalThis.helloButtonUnload = () => {
+      unpatch?.();
+    };
+  } catch(e) { console.log("Plugin error:", e); }
 })();
