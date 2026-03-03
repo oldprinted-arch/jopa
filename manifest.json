@@ -1,0 +1,6 @@
+{
+  "name": "HelloButton",
+  "description": "Test send button",
+  "authors": ["you"],
+  "main": "index.js"
+}
